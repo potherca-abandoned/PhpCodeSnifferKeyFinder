@@ -11,7 +11,28 @@
  */
 class CodeSnifferKeyFinder
 {
-	/**
+    /**
+     * @var RecursiveDirectoryIterator
+     */
+    public $m_oFolder;
+
+    /**
+     * @param \RecursiveDirectoryIterator $p_oFolder
+     */
+    public function setFolder (RecursiveDirectoryIterator $p_oFolder)
+    {
+        $this->m_oFolder = $p_oFolder;
+    }
+
+    /**
+     * @return \RecursiveDirectoryIterator
+     */
+    public function getFolder ()
+    {
+        return $this->m_oFolder;
+    }
+
+    /**
 	 * Find all PHP CodeSnifferKeys in a given directory.
 	 *
 	 * @param RecursiveDirectoryIterator $p_oFolder
@@ -20,14 +41,19 @@ class CodeSnifferKeyFinder
 	 */
 	public function findKeysInFolder(RecursiveDirectoryIterator $p_oFolder)
 	{
-		$aKeys = array();
+        $this->setFolder($p_oFolder);
 
-        foreach($p_oFolder as $oFile)
+        $aKeys = array();
+
+        $recursiveIterator = new RecursiveIteratorIterator($p_oFolder);
+
+        foreach($recursiveIterator as $oFile)
         {
+            /** @var SplFileInfo $oFile  */
             $sKey = $this->retrieveKeyFromFile($oFile);
 
             if($sKey !== null) {
-                $aKeys[] = $sKey;
+                $aKeys[$sKey] = $oFile->getPathname();
             }
         }
 
@@ -40,7 +66,21 @@ class CodeSnifferKeyFinder
 
         if($this->isValidFile($p_oFile) === true)
         {
-            $sKey = 'standard_folder.sniff_subfolder.sniff_file_without_Sniff_suffix.error_name';
+            $aKey = array();
+
+            #$sKey = 'standard_folder.sniff_subfolder.sniff_file_without_Sniff_suffix.error_name';
+            $aKey[] = 'error_name';
+
+            $aPath = explode (DIRECTORY_SEPARATOR, $p_oFile->getPathname ());
+            var_dump($aPath);
+            // Get file name without suffix
+            array_unshift($aKey, basename(array_pop($aPath), 'Sniff.php'));
+            // Get subfolder
+            array_unshift($aKey, array_pop($aPath));
+            // Get standard folder
+            array_unshift($aKey, array_pop($aPath));
+
+            $sKey = implode ('.', $aKey);
         }
 
         return $sKey;
@@ -59,6 +99,7 @@ class CodeSnifferKeyFinder
 
         return $bValid;
     }
+
 }
 
 #EOF
