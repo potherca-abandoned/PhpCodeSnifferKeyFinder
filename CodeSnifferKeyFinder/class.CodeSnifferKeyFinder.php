@@ -14,11 +14,11 @@ class CodeSnifferKeyFinder
 	/**
 	 * Find all PHP CodeSnifferKeys in a given directory.
 	 *
-	 * @param RecursiveDirectoryIterator $p_sFolder
+	 * @param RecursiveDirectoryIterator $p_oFolder
 	 *
 	 * @return array
 	 */
-	public function findKeysInFolder(RecursiveDirectoryIterator $p_sFolder)
+	public function findKeysInFolder(RecursiveDirectoryIterator $p_oFolder)
 	{
 		$aKeys = array();
 

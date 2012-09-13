@@ -19,6 +19,20 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
         $this->object = new CodeSnifferKeyFinder;
     }
 
+///////////////////////////////////// Tests \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    /**
+     * @test
+     * @covers   CodeSnifferKeyFinder::findKeysInFolder
+     *
+     * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
+     *
+     * @param $p_oDirectoryIterator
+     */
+    public function findKeysInFolder_ExpectsRecursiveDirectoryIterator_WhenCalled($p_oDirectoryIterator)
+    {
+        $this->object->findKeysInFolder($p_oDirectoryIterator);
+    }
+
     /**
      * @test
      * @covers            CodeSnifferKeyFinder::findKeysInFolder
@@ -38,29 +52,56 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
      * @test
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
-     * @@dataProvider provideValidParameter_For_FindKeysInFolder
+     * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
      *
      * @param $p_oDirectoryIterator
      */
-    public function findKeysInFolder_ExpectsRecursiveDirectoryIterator_WhenCalled($p_oDirectoryIterator)
+    public function findKeysInFolder_returnsArray_WhenCalledWithRecursiveDirectoryIterator($p_oDirectoryIterator)
     {
-        $this->object->findKeysInFolder($p_oDirectoryIterator);
+        $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
+        $this->assertInternalType('array',$aKeysInFolder);
     }
 
     /**
      * @test
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
-     * @@dataProvider provideValidParameter_For_FindKeysInFolder
+     * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
      *
      * @param $p_oDirectoryIterator
      */
-    public function findKeysInFolder_returnsArray_WhenCalledRecursiveDirectoryIterator($p_oDirectoryIterator)
+    public function findKeysInFolder_returnedArrayIsEmpty_WhenCalledWithRecursiveDirectoryIterator($p_oDirectoryIterator)
     {
-        $this->object->findKeysInFolder($p_oDirectoryIterator);
+        $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
+        $this->assertEmpty($aKeysInFolder);
+    }
+
+    /**
+     * @test
+     * @covers   CodeSnifferKeyFinder::findKeysInFolder
+     *
+     * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
+     *
+     * @param $p_oDirectoryIterator
+     */
+    public function findKeysInFolder_returnedArrayContainsKeys_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder($p_oDirectoryIterator)
+    {
+        $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
+        $this->assertNotEmpty($aKeysInFolder);
     }
 
 ///////////////////////////////// DataProviders \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    public function provideValidEmptyParameter_For_FindKeysInFolder()
+    {
+        return $this->provideRecursiveDirectoryIterator(__DIR__);
+    }
+
+    public function provideValidFilledParameter_For_FindKeysInFolder()
+    {
+        $sFolder = $this->getCodeSnifferDirectory();
+        return $this->provideRecursiveDirectoryIterator($sFolder);
+    }
+
     public function provideInvalidParameter_For_FindKeysInFolder()
     {
         return array(
@@ -73,11 +114,38 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
         );
     }
 
-    public function provideValidParameter_For_FindKeysInFolder()
+//////////////////////////////// Helper Methods \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+    protected function provideRecursiveDirectoryIterator($p_sFolder)
     {
-        $oDirectoryIterator = new RecursiveDirectoryIterator(__DIR__);
+        $sFolder = (string) $p_sFolder;
+        $oDirectoryIterator = new RecursiveDirectoryIterator($sFolder);
+
         return array(
             array($oDirectoryIterator)
         );
     }
+
+    protected function getCodeSnifferDirectory ()
+    {
+        $sFolder = '';
+        $sOutput = `pear config-show`;
+        if($sOutput === null)
+        {
+            throw new UnexpectedValueException('PEAR does not seem to be installed or is not reachable from the commandline.');
+        }
+        else if(strpos($sOutput, 'php_dir') === false)
+        {
+            throw new UnexpectedValueException('Could not find the PEAR directory in the output from the commandline.');
+        }
+        else
+        {
+            $sOutput = substr($sOutput, strpos ($sOutput, 'php_dir'));
+            $aPath = preg_split('/\s/', $sOutput, null, PREG_SPLIT_NO_EMPTY);
+            $sFolder = $aPath[1];
+        }
+
+        return $sFolder;
+    }
 }
+
+#EOF
