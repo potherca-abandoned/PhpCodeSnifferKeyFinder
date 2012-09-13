@@ -83,11 +83,35 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
      * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
      *
      * @param $p_oDirectoryIterator
+     *
+     * @return array
      */
-    public function findKeysInFolder_returnedArrayContainsKeys_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder($p_oDirectoryIterator)
+    public function findKeysInFolder_returnedArrayIsNotEmpty_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder($p_oDirectoryIterator)
     {
-        $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
+        $aKeysInFolder = $this->object->findKeysInFolder($p_oDirectoryIterator);
         $this->assertNotEmpty($aKeysInFolder);
+
+        return array($aKeysInFolder);
+    }
+
+    /**
+     * @test
+     * @covers   CodeSnifferKeyFinder::findKeysInFolder
+     *
+     * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
+     *
+     * @param $p_oDirectoryIterator
+     *
+     * @return array
+     */
+    public function findKeysInFolder_returnedKeysMatchPattern_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder($p_oDirectoryIterator)
+    {
+        $aKeysInFolder = $this->object->findKeysInFolder($p_oDirectoryIterator);
+        foreach($aKeysInFolder as $t_sKey)
+        {
+            // A valid PHP CodeSniffer key should contain the following parts: <standard_folder>.<sniff_subfolder>.<sniff_file_without_Sniff_suffix>.<error_name>
+            $this->assertRegExp('#([a-z0-9_]+\.){3}[a-z0-9_]+#ix', $t_sKey);
+        }
     }
 
 ///////////////////////////////// DataProviders \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
@@ -141,7 +165,15 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
         {
             $sOutput = substr($sOutput, strpos ($sOutput, 'php_dir'));
             $aPath = preg_split('/\s/', $sOutput, null, PREG_SPLIT_NO_EMPTY);
-            $sFolder = $aPath[1];
+
+            if(! is_dir($aPath[1] . '/PHP/CodeSniffer'))
+            {
+                throw new UnexpectedValueException('Could not find the CodeSniffer directory.');
+            }
+            else
+            {
+                $sFolder = $aPath[1] . '/PHP/CodeSniffer';
+            }
         }
 
         return $sFolder;
