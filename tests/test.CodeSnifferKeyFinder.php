@@ -11,7 +11,7 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 
     public static function setUpBeforeClass()
     {
-        include_once 'class.CodeSnifferKeyFinder.php';
+        include_once '../lib/class.CodeSnifferKeyFinder.php';
     }
 
     protected function setUp()
