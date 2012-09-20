@@ -1,6 +1,6 @@
 <?php
 /**
- *
+ * @covers CodeSnifferKeyFinder::<!public>
  */
 class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 {
@@ -22,6 +22,7 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 ///////////////////////////////////// Tests \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     /**
      * @test
+     *
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
      * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
@@ -35,6 +36,7 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
      * @covers            CodeSnifferKeyFinder::findKeysInFolder
      *
      * @expectedException PHPUnit_Framework_Error
@@ -50,104 +52,116 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 
     /**
      * @test
+     *
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
      * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
      *
      * @param $p_oDirectoryIterator
+     *
+     * @return array
      */
     public function findKeysInFolder_returnsArray_WhenCalledWithRecursiveDirectoryIterator(RecursiveDirectoryIterator $p_oDirectoryIterator)
     {
         $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
-        $this->assertInternalType('array',$aKeysInFolder);
+
+        $this->assertInternalType('array', $aKeysInFolder);
+
+        return $aKeysInFolder;
     }
 
     /**
      * @test
+     *
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
-     * @@dataProvider provideValidEmptyParameter_For_FindKeysInFolder
+     * @depends  findKeysInFolder_returnsArray_WhenCalledWithRecursiveDirectoryIterator
      *
-     * @param $p_oDirectoryIterator
+     * @param $aKeysInFolder
      */
-    public function findKeysInFolder_returnedArrayIsEmpty_WhenCalledWithRecursiveDirectoryIterator(RecursiveDirectoryIterator $p_oDirectoryIterator)
+    public function findKeysInFolder_returnedArrayIsEmpty_WhenCalledWithRecursiveDirectoryIterator($aKeysInFolder)
     {
-        $aKeysInFolder = $this->object->findKeysInFolder ($p_oDirectoryIterator);
         $this->assertEmpty($aKeysInFolder);
     }
 
     /**
      * @test
+     *
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
-     *
-     * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
-     *
-     * @param $p_oDirectoryIterator
      *
      * @return array
      */
-    public function findKeysInFolder_returnedArrayIsNotEmpty_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder(RecursiveDirectoryIterator $p_oDirectoryIterator)
+    public function findKeysInFolder_returnedArrayIsNotEmpty_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder()
     {
-        $aKeysInFolder = $this->object->findKeysInFolder($p_oDirectoryIterator);
+        $oDirectoryIterator = $this->provideRecursiveDirectoryIterator($this->fetchCodeSnifferDirectory());
+
+        $aKeysInFolder = $this->object->findKeysInFolder($oDirectoryIterator);
+
         $this->assertNotEmpty($aKeysInFolder);
 
-        return array($aKeysInFolder);
+        return $aKeysInFolder;
     }
 
     /**
      * @test
+     *
      * @covers   CodeSnifferKeyFinder::findKeysInFolder
      *
-     * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
+     * @depends  findKeysInFolder_returnedArrayIsNotEmpty_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder
      *
-     * @param $p_oDirectoryIterator
+     * @param $p_aKeysInFolder
      *
      * @return array
      */
-    public function findKeysInFolder_returnedKeysMatchPattern_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder(RecursiveDirectoryIterator $p_oDirectoryIterator)
+    public function findKeysInFolder_returnedKeysMatchPattern_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder(Array $p_aKeysInFolder)
     {
-        $aKeysInFolder = $this->object->findKeysInFolder($p_oDirectoryIterator);
-        foreach($aKeysInFolder as $t_sKey => $t_sFileName)
+        foreach($p_aKeysInFolder as $t_sKey)
         {
             // A valid PHP CodeSniffer key should contain the following parts: <standard_folder>.<sniff_subfolder>.<sniff_file_without_Sniff_suffix>.<error_name>
             $this->assertRegExp('#([a-z0-9_]+\.){3}[a-z0-9_]+#ix', $t_sKey);
         }
+
+        return $p_aKeysInFolder;
     }
 
-
-    /**
-     * @test
-     * @covers   CodeSnifferKeyFinder::findKeysInFolder
-     *
-     * @@dataProvider provideValidFilledParameter_For_FindKeysInFolder
-     *
-     * @param RecursiveDirectoryIterator $p_oDirectoryIterator
-     *
-     * @return array
-     */
-    public function findKeysInFolder_returnedKeysContainSniffFileName_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder(RecursiveDirectoryIterator $p_oDirectoryIterator)
+        /**
+         * @test
+         *
+         * @covers   CodeSnifferKeyFinder::findKeysInFolder
+         *
+         * @depends  findKeysInFolder_returnedKeysMatchPattern_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder
+         *
+         * @param array $p_aKeysInFolder
+         *
+         * @return array
+         */
+    public function findKeysInFolder_returnedArrayContainCorrectKeys_WhenCalledWithRecursiveDirectoryIteratorThatPointsToSnifferFolder(Array $p_aKeysInFolder)
     {
-        $aKeysInFolder = $this->object->findKeysInFolder($p_oDirectoryIterator);
+        /*
+         * As we would have to write more logic to ascertain the file and folder
+         * names we are just checking against the hardcoded values that should
+         * be returned when parsing the test sniff folder
+         */
 
-        foreach($aKeysInFolder as $t_sKey => $t_sFilePath)
-        {
-            $sBaseName = basename ($t_sFilePath, 'Sniff.php');
-            // A valid PHP CodeSniffer key should contain the following parts: <standard_folder>.<sniff_subfolder>.<sniff_file_without_Sniff_suffix>.<error_name>
-            $this->assertContains($sBaseName, $t_sKey);
-        }
+        $aExpected = array(
+              'TestSniffs.WhiteSpace.DisallowTabIndent.TabsUsed'
+            , 'TestSniffs.WhiteSpace.ScopeIndent.Incorrect'
+            , 'TestSniffs.Classes.DuplicateClassName.Found'
+            , 'TestSniffs.Commenting.Todo.TaskFound'
+            , 'TestSniffs.Commenting.Fixme.TaskFound'
+        );
+        $this->assertEquals($aExpected, $p_aKeysInFolder);
     }
 
 ///////////////////////////////// DataProviders \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public function provideValidEmptyParameter_For_FindKeysInFolder()
     {
-        $sFolder = $this->getCodeSnifferDirectory() . '/EmptyFolder';
-        return $this->provideRecursiveDirectoryIterator($sFolder);
-    }
+        $sFolder = $this->fetchCodeSnifferDirectory() . '/EmptyFolder';
+        $oDirectoryIterator = $this->provideRecursiveDirectoryIterator($sFolder);
 
-    public function provideValidFilledParameter_For_FindKeysInFolder()
-    {
-        $sFolder = $this->getCodeSnifferDirectory();
-        return $this->provideRecursiveDirectoryIterator($sFolder);
+        return array(
+            array($oDirectoryIterator)
+        );
     }
 
     public function provideInvalidParameter_For_FindKeysInFolder()
@@ -165,15 +179,10 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 //////////////////////////////// Helper Methods \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     protected function provideRecursiveDirectoryIterator($p_sFolder)
     {
-        $sFolder = (string) $p_sFolder;
-        $oDirectoryIterator = new RecursiveDirectoryIterator($sFolder, RecursiveDirectoryIterator::SKIP_DOTS);
-
-        return array(
-            array($oDirectoryIterator)
-        );
+        return new RecursiveDirectoryIterator($p_sFolder, RecursiveDirectoryIterator::SKIP_DOTS);
     }
 
-    protected function getCodeSnifferDirectory ()
+    protected function fetchCodeSnifferDirectory ()
     {
         return __DIR__ . '/TestSniffs';
     }

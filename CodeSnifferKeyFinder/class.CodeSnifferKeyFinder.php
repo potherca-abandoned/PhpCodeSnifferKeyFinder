@@ -1,4 +1,5 @@
 <?php
+
 /**
  *
  * PHP CodeSniffer keys are build up like this:
@@ -50,40 +51,111 @@ class CodeSnifferKeyFinder
         foreach($recursiveIterator as $oFile)
         {
             /** @var SplFileInfo $oFile  */
-            $sKey = $this->retrieveKeyFromFile($oFile);
+            $aKeysFromFile = $this->findKeysInFile($oFile);
 
-            if($sKey !== null) {
-                $aKeys[$sKey] = $oFile->getPathname();
+            if(!empty($aKeysFromFile))
+            {
+                $aKeys = array_merge($aKeys, array_unique($aKeysFromFile));
             }
         }
 
 		return $aKeys;
 	}
 
-    protected function retrieveKeyFromFile(SplFileInfo $p_oFile)
+    protected  function findKeysInFile(SplFileInfo $p_oFile)
     {
-        $sKey = null;
+        $aKeys = array();
 
         if($this->isValidFile($p_oFile) === true)
         {
+            $aPath = explode (DIRECTORY_SEPARATOR, $p_oFile->getPathname());
+            $aKeysFromFile = $this->retrieveKeyNamesFromFile ($p_oFile);
+
+                // Building a valid PHP CodeSniffer key in reverse order
             $aKey = array();
-
-            #$sKey = 'standard_folder.sniff_subfolder.sniff_file_without_Sniff_suffix.error_name';
-            $aKey[] = 'error_name';
-
-            $aPath = explode (DIRECTORY_SEPARATOR, $p_oFile->getPathname ());
-            var_dump($aPath);
-            // Get file name without suffix
-            array_unshift($aKey, basename(array_pop($aPath), 'Sniff.php'));
-            // Get subfolder
-            array_unshift($aKey, array_pop($aPath));
-            // Get standard folder
-            array_unshift($aKey, array_pop($aPath));
+            array_unshift($aKey, basename(array_pop($aPath), 'Sniff.php')); // <sniff_file_without_Sniff_suffix>
+            array_unshift($aKey, array_pop($aPath));                        // <sniff_subfolder>
+            array_unshift($aKey, array_pop($aPath));                        // <standard_folder>
 
             $sKey = implode ('.', $aKey);
+
+            foreach ($aKeysFromFile as $t_sKey)
+            {
+                $aKeys[] = $sKey . '.' . $t_sKey;
+            }#foreach
         }
 
-        return $sKey;
+        return $aKeys;
+    }
+
+    protected function retrieveKeyNamesFromFile(SplFileInfo $p_oFile)
+    {
+        $aKeys = array();
+        $sContents = file_get_contents ($p_oFile->getPathname());
+
+        //     public function addWarning($warning, $stackPtr, $code='', $data=array(), $severity=0)
+        //     public function addError($error, $stackPtr, $code='', $data=array(), $severity=0)
+        $sRegexp = '!                                                           # START PATTERN
+        (?:->\s*                                                                # open NCS (non-capturing subpattern)
+            add(?P<SEVERITY>Warning|Error)                                      # Method name
+        )                                                                       # close NCS
+        \s*\(                                                                   # (
+                                                                                # START PARAMETERS
+            (?|(?P<MESSAGE>\$[a-z0-9_]+)|[\'"](?P<MESSAGE>.*?)[\'"])            # message OR name of the variable containing the message
+            \s*,\s*                                                             # ,
+            (.*?)                                                               # unneeded parameter
+            \s*,\s*                                                             # ,
+            (?|(?P<KEY>\$[a-z0-9_]+)|[\'"](?P<KEY>.*?)[\'"])                    # key OR name of the variable containing the key
+            .*                                                                  # unneeded parameter
+                                                                                # END PARAMETERS
+        \)\s*;                                                                  # )
+        !xm';                                                                   # END PATTERN
+
+        if(preg_match_all($sRegexp, $sContents, $aFullMatches, PREG_SET_ORDER) > 0)
+        {
+            foreach ($aFullMatches as $t_aMatch)
+            {
+                $sKey = $t_aMatch['KEY'];
+                if($sKey{0} === '$')
+                {
+                    $sFullMatch = $t_aMatch[0];
+                    $aContents = explode ("\n", $sContents);
+                    foreach ($aContents as $t_iLineNumber => $t_sLine)
+                    {
+                        if(strpos($t_sLine, $sFullMatch) !== false)
+                        {
+                            $iLineNumber = $t_iLineNumber;
+                            break;
+                        }#if
+                    }#foreach
+
+                    if(isset($iLineNumber))
+                    {
+                        // Lets look for that variable!
+                        while($iLineNumber > -1) // fallback in case we don't find it
+                        {
+                            $iLineNumber--;
+                            $sLine = $aContents[$iLineNumber];
+
+                            if(preg_match('/function [a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*\s*\(.*?/ms', $sLine, $aMatches) > 0)
+                            {
+                                // We really don't want to keep parsing beyond the boundary of the current function
+                                break;
+                            }
+                            else if(preg_match('#\\' . $sKey . '\s*=\s*(\'|")(?P<KEY>.*?)\1#', $sLine, $aMatches) > 0)
+                            {
+                                $sKey = $aMatches['KEY'];
+                                break;
+                            }#if
+                        }#while
+                    }#if
+                }#if
+
+                $aKeys[] = $sKey;
+            }#foreach
+        }
+
+        return $aKeys;
     }
 
     protected function isValidFile (SplFileInfo $p_oFile)
