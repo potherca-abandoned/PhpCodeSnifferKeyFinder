@@ -12,6 +12,8 @@ functionality from either a web host or command-line.
 *Commandline example*
 `php getKeysFromSniffs.php /path/to/code/sniffs/`
 
+## Dependencies
+Requires PHP 5.3 or higher
 
 [1]: http://pear.php.net/package/PHP_CodeSniffer
 [2]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
