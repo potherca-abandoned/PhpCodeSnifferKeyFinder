@@ -156,7 +156,7 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
 ///////////////////////////////// DataProviders \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
     public function provideValidEmptyParameter_For_FindKeysInFolder()
     {
-        $sFolder = $this->fetchCodeSnifferDirectory() . '/EmptyFolder';
+        $sFolder = $this->fetchCodeSnifferDirectory() . '/Sniffs/EmptyFolder';
         $oDirectoryIterator = $this->provideRecursiveDirectoryIterator($sFolder);
 
         return array(

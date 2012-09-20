@@ -75,6 +75,7 @@ class CodeSnifferKeyFinder
             $aKey = array();
             array_unshift($aKey, basename(array_pop($aPath), 'Sniff.php')); // <sniff_file_without_Sniff_suffix>
             array_unshift($aKey, array_pop($aPath));                        // <sniff_subfolder>
+            array_pop($aPath);                                              // Skipp the 'Sniffs' folder
             array_unshift($aKey, array_pop($aPath));                        // <standard_folder>
 
             $sKey = implode ('.', $aKey);
