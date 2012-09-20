@@ -1,51 +1,37 @@
 <?php
 
-    // @TODO: The $sFolder variable should be a parameter, either from $_GET or $argv
-    $sFolder = '/path/to/your/CodeSniffer/Directory';
-
-    $bCommandLine = (php_sapi_name() === PHP_SAPI);
-
     include_once 'lib/class.CodeSnifferKeyFinder.php';
+    include_once 'lib/class.CodeSnifferKeyFinderUtilities.php';
 
     $oKeyFinder = new CodeSnifferKeyFinder();
-    $oDirectoryIterator = new RecursiveDirectoryIterator($sFolder);
-    $aKeys = $oKeyFinder->findKeysInFolder($oDirectoryIterator);
+    $oUtil = new CodeSnifferKeyFinderUtilities();
 
-    // @TODO: If we're on the command line, in which case the output should NOT be HTML   BMP/2012/09/20
-    foreach($aKeys as $t_sKey)
+    $bCommandLine = $oUtil->iscommandLine();
+
+    try
     {
-        echo $bCommandLine?'':'<li>' . $t_sKey . $bCommandLine?'':'</li>' . "\n";
+        $sFolder = $oUtil->getFolder();
+    }
+    catch (InvalidArgumentException $eInvalidArgumentException)
+    {
+        echo 'ERROR : ' . $eInvalidArgumentException->getMessage() . "\n";
     }
 
-    function getPhpCodeSnifferPath()
+
+    if(isset($sFolder))
     {
-        $sFolder = '';
-        $sOutput = `pear config-show`;
+        $oDirectoryIterator = new RecursiveDirectoryIterator($sFolder);
+        $aKeys = $oKeyFinder->findKeysInFolder($oDirectoryIterator);
 
-        if($sOutput === null)
+        foreach($aKeys as $t_sKey)
         {
-            throw new UnexpectedValueException('PEAR does not seem to be installed or is not reachable from the commandline.');
+            echo
+                  ($bCommandLine?'':'<li>')
+                . $t_sKey
+                . ($bCommandLine?'':'</li>')
+                . "\n"
+            ;
         }
-        else if(strpos($sOutput, 'php_dir') === false)
-        {
-            throw new UnexpectedValueException('Could not find the PEAR directory in the output from the commandline.');
-        }
-        else
-        {
-            $sOutput = substr($sOutput, strpos($sOutput, 'php_dir'));
-
-            $aPath   = preg_split('/\s/', $sOutput, null, PREG_SPLIT_NO_EMPTY);
-
-            if(!is_dir($aPath[1] . '/PHP/CodeSniffer'))
-            {
-                throw new UnexpectedValueException('Could not find the CodeSniffer directory.');
-            }
-            else
-            {
-                $sFolder = $aPath[1] . '/PHP/CodeSniffer';
-            }
-        }
-        return $sFolder;
     }
 
 #EOF
