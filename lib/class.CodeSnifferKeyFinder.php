@@ -59,7 +59,9 @@ class CodeSnifferKeyFinder
             }
         }
 
-		return $aKeys;
+	asort($aKeys);
+
+	return $aKeys;
 	}
 
     protected  function findKeysInFile(SplFileInfo $p_oFile)
