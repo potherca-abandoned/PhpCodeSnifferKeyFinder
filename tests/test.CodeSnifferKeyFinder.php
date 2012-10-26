@@ -144,11 +144,11 @@ class CodeSnifferKeyFinderTest extends PHPUnit_Framework_TestCase
          */
 
         $aExpected = array(
-              'TestSniffs.WhiteSpace.DisallowTabIndent.TabsUsed'
-            , 'TestSniffs.WhiteSpace.ScopeIndent.Incorrect'
-            , 'TestSniffs.Classes.DuplicateClassName.Found'
-            , 'TestSniffs.Commenting.Todo.TaskFound'
+              'TestSniffs.Classes.DuplicateClassName.Found'
             , 'TestSniffs.Commenting.Fixme.TaskFound'
+            , 'TestSniffs.Commenting.Todo.TaskFound'
+            , 'TestSniffs.WhiteSpace.DisallowTabIndent.TabsUsed'
+            , 'TestSniffs.WhiteSpace.ScopeIndent.Incorrect'
         );
         $this->assertEquals($aExpected, $p_aKeysInFolder);
     }
