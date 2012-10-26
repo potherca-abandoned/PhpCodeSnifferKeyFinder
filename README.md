@@ -16,6 +16,7 @@ functionality from either a web host or command-line.
 ## Dependencies
 Requires PHP 5.3 or higher
 
+
 [1]: http://travis-ci.org/potherca/PhpCodeSnifferKeyFinder
 [2]: http://pear.php.net/package/PHP_CodeSniffer
 [3]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
