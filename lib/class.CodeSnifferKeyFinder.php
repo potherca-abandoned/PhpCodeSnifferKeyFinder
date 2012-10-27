@@ -34,14 +34,14 @@ class CodeSnifferKeyFinder
     }
 
     /**
-	 * Find all PHP CodeSnifferKeys in a given directory.
-	 *
-	 * @param RecursiveDirectoryIterator $p_oFolder
-	 *
-	 * @return array
-	 */
-	public function findKeysInFolder(RecursiveDirectoryIterator $p_oFolder)
-	{
+     * Find all PHP CodeSnifferKeys in a given directory.
+     *
+     * @param RecursiveDirectoryIterator $p_oFolder
+     *
+     * @return array
+     */
+    public function findKeysInFolder(RecursiveDirectoryIterator $p_oFolder)
+    {
         $this->setFolder($p_oFolder);
 
         $aKeys = array();
@@ -59,10 +59,10 @@ class CodeSnifferKeyFinder
             }
         }
 
-	asort($aKeys);
+        sort($aKeys);
 
-	return $aKeys;
-	}
+        return $aKeys;
+    }
 
     protected  function findKeysInFile(SplFileInfo $p_oFile)
     {
@@ -163,16 +163,28 @@ class CodeSnifferKeyFinder
 
     protected function isValidFile (SplFileInfo $p_oFile)
     {
-        $bValid = false;
-
-        if(
-            $p_oFile->getExtension () === 'php'
-            && substr ($p_oFile->getBasename ('.php'), -5) === 'Sniff'
-        ){
-            $bValid = true;
-        }
+            $bValid = ($this->isPhpFile($p_oFile) && $this->isSniffFile($p_oFile));
 
         return $bValid;
+    }
+
+    protected function isSniffFile(SplFileInfo $p_oFile)
+    {
+        return substr($p_oFile->getBasename('.php'), -5) === 'Sniff';
+    }
+
+    protected function isPhpFile(SplFileInfo $p_oFile)
+    {
+        if((version_compare(PHP_VERSION, '5.3.6') >= 0))
+        {
+            $sExtension = $p_oFile->getExtension();
+        }else{
+            $sExtension = pathinfo($p_oFile->getFilename(), PATHINFO_EXTENSION);
+        }
+
+        $bIsPhpFile = ($sExtension === 'php');
+
+        return $bIsPhpFile;
     }
 
 }

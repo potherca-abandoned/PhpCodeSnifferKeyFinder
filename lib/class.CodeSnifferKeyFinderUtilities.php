@@ -7,7 +7,7 @@ class CodeSnifferKeyFinderUtilities
         return (PHP_SAPI === 'cli');
     }
 
-    function getFolder()
+    public function getFolder()
     {
         $sFolder = null;
 
@@ -39,7 +39,7 @@ class CodeSnifferKeyFinderUtilities
         return $sFolder;
     }
 
-    function getPhpCodeSnifferPath()
+    public function getPhpCodeSnifferPath()
     {
         $sFolder = '';
 
