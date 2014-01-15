@@ -20,3 +20,6 @@ Requires PHP 5.3 or higher
 [1]: http://travis-ci.org/potherca/PhpCodeSnifferKeyFinder
 [2]: http://pear.php.net/package/PHP_CodeSniffer
 [3]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
+
+[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/potherca/phpcodesnifferkeyfinder/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
+
