@@ -1,8 +1,11 @@
 # Php CodeSniffer Key Finder
-[![Build Status](https://secure.travis-ci.org/potherca/PhpCodeSnifferKeyFinder.png)][1]
+
+[![Build Status]][Travis Page] [![Project Stage: Experimental]][Project Stage Page]
+
+
 
 This project consists of a class that has one goal: Get all the available keys
-from [PHP_CodeSniffer][2] [Sniffs folders][3]
+from [PHP_CodeSniffer]'s [Sniffs folders].
 
 The `getKeysFromSniffs.php` file adds a rather simple interface to this
 functionality from either a web host or command-line.
@@ -17,9 +20,16 @@ functionality from either a web host or command-line.
 Requires PHP 5.3 or higher
 
 
-[1]: http://travis-ci.org/potherca/PhpCodeSnifferKeyFinder
-[2]: http://pear.php.net/package/PHP_CodeSniffer
-[3]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
+## License
+Licensed under [GPL3+]
 
-[![Bitdeli Badge](https://d2weczhvl823v0.cloudfront.net/potherca/phpcodesnifferkeyfinder/trend.png)](https://bitdeli.com/free "Bitdeli Badge")
 
+[Build Status]: https://img.shields.io/travis/potherca/PhpCodeSnifferKeyFinder.svg?style=flat-square
+[Project Stage Page]: http://bl.ocks.org/potherca/a2ae67caa3863a299ba0
+[Project Stage: Experimental]: https://img.shields.io/badge/Project%20Stage-Experimental-yellow.svg?style=flat-square
+[Travis Page]: https://travis-ci.org/potherca/PhpCodeSnifferKeyFinder
+
+[PHP_CodeSniffer]: https://pear.php.net/package/PHP_CodeSniffer
+[Sniffs folders]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
+
+[GPL3+]: LICENSE.md
