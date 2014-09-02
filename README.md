@@ -1,6 +1,8 @@
 # Php CodeSniffer Key Finder
 
-[![Build Status]][Travis Page] [![Project Stage: Experimental]][Project Stage Page]
+[![Build Status]][Travis Page] 
+[![Project Stage: Experimental]][Project Stage Page] 
+[![License Badge]][GPL3+]
 
 
 
@@ -33,3 +35,4 @@ Licensed under [GPL3+]
 [Sniffs folders]: https://github.com/squizlabs/PHP_CodeSniffer/tree/master/CodeSniffer/Standards
 
 [GPL3+]: LICENSE.md
+[License Badge]: https://img.shields.io/badge/License-GPL3%2B-lightgray.svg?style=flat-square
